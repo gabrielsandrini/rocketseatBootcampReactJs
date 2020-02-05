@@ -1,10 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../../services/api';
 
 // import { Container } from './styles';
 
 export default function Repository(props) {
-  // eslint-disable-next-line react/prop-types
-  const { match } = props;
+  const [repository, setRepository] = useState({});
+  const [issues, setIssues] = useState([]);
+  const [isLoading, setLoading] = useState(true);
 
-  return <h1>Repository: {decodeURIComponent(match.params.repository)} </h1>;
+  useEffect(() => {
+    (async function callApi() {
+      const repoName = decodeURIComponent(props.match.params.repository);
+      const data = await Promise.all([
+        api.get(`/repos/${repoName}`),
+        api.get(`/repos/${repoName}/issues`, {
+          params: { state: 'open', per_page: 5 },
+        }),
+      ]);
+
+      const [repoRequested, issuesRequested] = data;
+
+      setRepository(repoRequested);
+      setIssues(issuesRequested);
+      setLoading(false);
+    })();
+  });
+
+  return <h1>Repository</h1>;
 }
