@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { Container, Form, SubmitButton, List } from './styles';
 
@@ -7,6 +8,17 @@ export default function Main() {
   const [newRepo, setNewRepo] = useState('');
   const [repositories, setRepositories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const repos = localStorage.getItem('repositories');
+    if (repos) {
+      setRepositories(JSON.parse(repos));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('repositories', JSON.stringify(repositories));
+  }, [repositories]);
 
   const handleInputChange = event => {
     setNewRepo(event.target.value);
@@ -53,7 +65,9 @@ export default function Main() {
         {repositories.map(repo => (
           <li key={repo.name}>
             <span>{repo.name}</span>
-            <a href="#">Detalhes</a>
+            <Link to={`/repository/${encodeURIComponent(repo.name)}`}>
+              Detalhes
+            </Link>
           </li>
         ))}
       </List>
